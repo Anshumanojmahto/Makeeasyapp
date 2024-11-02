@@ -1,21 +1,5 @@
-import { StyleSheet, View, FlatList } from "react-native";
-import products from "@assets/data/products";
-import ProductItem from "@components/ProductItem";
+import { Redirect } from "expo-router";
 
-export default function TabOneScreen() {
-  return (
-    /* <View>
-        <ProductItem product={products[5]} />
-        <ProductItem product={products[1]} />
-      </View> */
-    <FlatList
-      data={products}
-      renderItem={({ item }) => <ProductItem product={item} />}
-      numColumns={2}
-      contentContainerStyle={{ gap: 10, padding: 10 }}
-      columnWrapperStyle={{ gap: 10 }}
-    />
-  );
+export default function TabIndex() {
+  return <Redirect href={"/menu/"} />;
 }
-
-const styles = StyleSheet.create({});
