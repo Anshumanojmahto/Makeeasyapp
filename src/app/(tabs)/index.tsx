@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
-import products from "../../../assets/data/products";
-import ProductItem from "@/src/components/ProductItem";
+import products from "@assets/data/products";
+import ProductItem from "@components/ProductItem";
 
 export default function TabOneScreen() {
   return (
