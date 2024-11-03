@@ -35,33 +35,9 @@ const ProductDetail = () => {
         source={{ uri: product.image || defaultUri }}
         style={styles.image}
       />
-      <Text style={styles.subTag}>Select size</Text>
-      <View style={styles.sizes}>
-        {sizes.map((size) => (
-          <Pressable
-            key={size}
-            onPress={() => setSelectedSize(size)}
-            style={[
-              styles.size,
-              {
-                backgroundColor: size === selectedSize ? "gainsboro" : "white",
-              },
-            ]}
-          >
-            <Text
-              style={[
-                styles.sizeText,
-                { color: size === selectedSize ? "black" : "gray" },
-              ]}
-            >
-              {size}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      <Text style={styles.subTag}>{product.name}</Text>
 
       <Text style={styles.price}>Price : {product.price}</Text>
-      <Button onPress={addToCart} text="Add to cart" />
     </View>
   );
 };
@@ -78,13 +54,12 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   subTag: {
-    marginVertical: 10,
-    fontWeight: "600",
+    marginVertical: 4,
+    fontWeight: "bold",
   },
   price: {
     fontSize: 18,
     fontWeight: "bold",
-    marginTop: "auto",
   },
   sizes: {
     flexDirection: "row",

@@ -12,7 +12,7 @@ const MenuLayout = () => {
           title: "Menu",
           headerTitleAlign: "center",
           headerRight: () => (
-            <Link href="/" asChild>
+            <Link href="/(admin)/menu/createProduct" asChild>
               <Pressable>
                 {({ pressed }) => (
                   <FontAwesome
