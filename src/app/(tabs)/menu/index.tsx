@@ -1,4 +1,4 @@
-import { StyleSheet, View, FlatList } from "react-native";
+import { StyleSheet, FlatList } from "react-native";
 import products from "@assets/data/products";
 import ProductItem from "@components/ProductItem";
 
