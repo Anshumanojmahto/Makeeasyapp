@@ -1,16 +1,24 @@
-import { StyleSheet, Text, TextInput, View, Image } from "react-native";
+import { StyleSheet, Text, TextInput, View, Image, Alert } from "react-native";
 import React, { useState } from "react";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import Button from "@/components/Button";
 import { defaultUri } from "@/components/ProductItem";
 import Colors from "@/constants/Colors";
 import * as ImagePicker from "expo-image-picker";
+import products from "@assets/data/products";
 
 const CreateProduct = () => {
-  const [name, setName] = useState<string | "">("");
-  const [price, setPrice] = useState<string | "">("");
+  const { id } = useLocalSearchParams();
+  const isUpdating = !!id;
+  const product = products.find((product) => product.id.toString() === id);
+  const [name, setName] = useState<string | "">(product?.name || "");
+  const [price, setPrice] = useState<string | "">(
+    product?.price.toString() || ""
+  );
   const [error, seterror] = useState<string | null>("");
-  const [image, setImage] = useState<string | null>(defaultUri);
+  const [image, setImage] = useState<string | null>(
+    product?.image || defaultUri
+  );
 
   function resetFields() {
     setName("");
@@ -44,12 +52,25 @@ const CreateProduct = () => {
       quality: 1,
     });
 
-    console.log(result);
-
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
   };
+  function onUpdate() {
+    if (!validate()) {
+      return;
+    }
+
+    //update on database
+
+    console.log(name, price, image);
+    const newproducts = products.map((product) =>
+      product.id.toString() == id ? { ...product, name, price, image } : product
+    );
+
+    console.warn("product upDated");
+    resetFields();
+  }
   function clearImg() {
     setImage(defaultUri);
   }
@@ -63,10 +84,28 @@ const CreateProduct = () => {
 
     resetFields();
   }
+  function deleting() {
+    console.warn("deleted!!!");
+  }
+  function confirmDelete() {
+    Alert.alert("Confirm", "Are you sure you want to delete this product", [
+      {
+        text: "Cancle",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: deleting,
+      },
+    ]);
+  }
   return (
     <View style={styles.container}>
       <Stack.Screen
-        options={{ title: "Create Product", headerTitleAlign: "center" }}
+        options={{
+          title: isUpdating ? "Upadate Product" : "Create Product",
+          headerTitleAlign: "center",
+        }}
       />
       <Image source={{ uri: image || defaultUri }} style={styles.image} />
       <Text
@@ -107,7 +146,23 @@ const CreateProduct = () => {
         keyboardType="numeric"
       />
       <Text style={{ color: "red" }}>{error}</Text>
-      <Button text="Create" onPress={onCreate} />
+      <Button
+        text={isUpdating ? "Update" : "Create"}
+        onPress={isUpdating ? onUpdate : onCreate}
+      />
+      {isUpdating && (
+        <Text
+          onPress={confirmDelete}
+          style={{
+            alignSelf: "center",
+            color: Colors.light.tint,
+            fontSize: 18,
+            fontWeight: "bold",
+          }}
+        >
+          Delete
+        </Text>
+      )}
     </View>
   );
 };

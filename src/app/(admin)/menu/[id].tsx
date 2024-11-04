@@ -1,35 +1,39 @@
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
-import React, { useState } from "react";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
+import { Link, Stack, useLocalSearchParams } from "expo-router";
 import products from "@assets/data/products";
 import { defaultUri } from "@/components/ProductItem";
-import Button from "@/components/Button";
-import { useCart } from "@/providers/cartContext";
-import { PizzaSize } from "@/types";
-
-const sizes: PizzaSize[] = ["S", "M", "L", "XL"];
+import Colors from "@/constants/Colors";
+import { FontAwesome } from "@expo/vector-icons";
 
 const ProductDetail = () => {
-  const { addItem } = useCart();
   const { id } = useLocalSearchParams();
-  const [selectedSize, setSelectedSize] = useState<PizzaSize>("M");
   const product = products.find((product) => product.id.toString() === id);
 
-  const router = useRouter();
-  const addToCart = () => {
-    if (!product) {
-      return;
-    }
-    addItem(product, selectedSize || "M");
-    router.push("/");
-  };
   if (!product) {
     return <Text>NO PRODUCT FOUND</Text>;
   }
   return (
     <View style={styles.container}>
       <Stack.Screen
-        options={{ title: product.name, headerTitleAlign: "center" }}
+        options={{
+          title: product.name,
+          headerTitleAlign: "center",
+          headerRight: () => (
+            <Link href={`/(admin)/menu/createProduct?id=${id}`} asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <FontAwesome
+                    name="pencil"
+                    size={25}
+                    color={Colors.light.tint}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
+        }}
       />
       <Image
         source={{ uri: product.image || defaultUri }}
