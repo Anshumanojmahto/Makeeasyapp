@@ -85,7 +85,7 @@ export const useDeleteProduct = () => {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
     },
-    async onSuccess(_, { id }) {
+    async onSuccess() {
       await queryClient.invalidateQueries(["products"]);
     },
     onError(error) {
