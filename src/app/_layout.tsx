@@ -9,7 +9,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
-
+import AuthCOntextProvider from "@/providers/AuthProvider";
 import { useColorScheme } from "@components/useColorScheme";
 import CartContextProvider from "@/providers/cartContext";
 
@@ -55,14 +55,16 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <CartContextProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(user)" options={{ headerShown: false }} />
-          <Stack.Screen name="(admin)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="cart" options={{ presentation: "modal" }} />
-        </Stack>
-      </CartContextProvider>
+      <AuthCOntextProvider>
+        <CartContextProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(user)" options={{ headerShown: false }} />
+            <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="cart" options={{ presentation: "modal" }} />
+          </Stack>
+        </CartContextProvider>
+      </AuthCOntextProvider>
     </ThemeProvider>
   );
 }

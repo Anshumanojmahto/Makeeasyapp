@@ -1,13 +1,15 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
 import React, { useState } from "react";
 import Button from "@/components/Button";
 import { Link, Stack } from "expo-router";
 import Colors from "@/constants/Colors";
+import { supabase } from "@/lib/supabase";
 
 const SignIN = () => {
   const [email, setemail] = useState<string | "">("");
   const [password, setpassword] = useState<string | "">("");
   const [error, seterror] = useState<string | null>("");
+  const [loding, setLoding] = useState(false);
 
   function resetFields() {
     setemail("");
@@ -27,15 +29,18 @@ const SignIN = () => {
     return true;
   }
   //sign succes
-  function signSucces() {
-    console.warn("sign succes");
-  }
 
-  function doneSIgnIn() {
+  async function doneSIgnIn() {
     if (!validate()) {
       return;
     }
-    signSucces();
+    setLoding(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) Alert.alert(error.message);
+    setLoding(false);
     resetFields();
   }
   return (
@@ -46,7 +51,6 @@ const SignIN = () => {
           headerTitleAlign: "center",
         }}
       />
-
       <Text style={styles.title}>Email</Text>
       <TextInput
         value={email}
@@ -63,8 +67,7 @@ const SignIN = () => {
         secureTextEntry
       />
       <Text style={{ color: "red" }}>{error}</Text>
-      <Button text={"Sign in"} onPress={doneSIgnIn} />
-
+      <Button disabled={loding} text={"Sign in"} onPress={doneSIgnIn} />
       <Link
         href={"./signup"}
         style={{
