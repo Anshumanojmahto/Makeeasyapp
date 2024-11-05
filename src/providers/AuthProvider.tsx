@@ -11,19 +11,35 @@ import {
 type AuthType = {
   session: Session | null;
   loding: boolean;
+  profile: any;
+  isAdmin: boolean;
 };
 const AuthContext = createContext<AuthType>({
   session: null,
   loding: true,
+  profile: null,
+  isAdmin: false,
 });
 
 function AuthCOntextProvider({ children }: PropsWithChildren) {
   const [session, setsession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Session | null>(null);
   const [loding, setloding] = useState(true);
   useEffect(() => {
     async function getSession() {
-      const { data } = await supabase.auth.getSession();
-      setsession(data.session);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setsession(session);
+      if (session) {
+        // fetch profile
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
+        setProfile(data || null);
+      }
       setloding(false);
     }
     getSession();
@@ -32,7 +48,9 @@ function AuthCOntextProvider({ children }: PropsWithChildren) {
     });
   }, []);
   return (
-    <AuthContext.Provider value={{ session, loding }}>
+    <AuthContext.Provider
+      value={{ session, loding, profile, isAdmin: profile?.group === "ADMIN" }}
+    >
       {children}
     </AuthContext.Provider>
   );
