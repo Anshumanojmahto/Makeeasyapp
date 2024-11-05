@@ -1,24 +1,51 @@
-import { StyleSheet, Text, TextInput, View, Image, Alert } from "react-native";
-import React, { useState } from "react";
-import { Stack, useLocalSearchParams } from "expo-router";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Image,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import Button from "@/components/Button";
 import { defaultUri } from "@/components/ProductItem";
 import Colors from "@/constants/Colors";
 import * as ImagePicker from "expo-image-picker";
-import products from "@assets/data/products";
+import {
+  useDeleteProduct,
+  useInsertProduct,
+  useProduct,
+} from "@/app/api/products";
+import { useUpdateProduct } from "@/app/api/products";
 
 const CreateProduct = () => {
   const { id } = useLocalSearchParams();
-  const isUpdating = !!id;
-  const product = products.find((product) => product.id.toString() === id);
-  const [name, setName] = useState<string | "">(product?.name || "");
-  const [price, setPrice] = useState<string | "">(
-    product?.price.toString() || ""
-  );
+  const parsedId = id ? parseInt(Array.isArray(id) ? id[0] : id) : null;
+  const isUpdating = !!parsedId;
+
+  const [name, setName] = useState<string | "">("");
+  const [price, setPrice] = useState<string | "">("");
   const [error, seterror] = useState<string | null>("");
-  const [image, setImage] = useState<string | null>(
-    product?.image || defaultUri
-  );
+  const [image, setImage] = useState<string | null>(defaultUri);
+  const { mutate: insertProduct } = useInsertProduct();
+  const { mutate: updateProduct } = useUpdateProduct();
+  const { mutate: deleteProduct } = useDeleteProduct();
+  let isLoding: boolean = false;
+  if (id) {
+    const { data: updatingProduct, isLoading } = useProduct(parsedId || 0);
+    useEffect(() => {
+      if (updatingProduct) {
+        setName(updatingProduct.name ?? "");
+        setImage(updatingProduct.image ?? defaultUri);
+        setPrice(updatingProduct.price?.toString() ?? "");
+      }
+    }, [updatingProduct]);
+    isLoding = isLoading;
+  }
+
+  const router = useRouter();
 
   function resetFields() {
     setName("");
@@ -62,14 +89,20 @@ const CreateProduct = () => {
     }
 
     //update on database
-
-    console.log(name, price, image);
-    const newproducts = products.map((product) =>
-      product.id.toString() == id ? { ...product, name, price, image } : product
+    updateProduct(
+      {
+        id: parseInt(typeof id === "string" ? id : id[0]),
+        name,
+        image,
+        price: parseFloat(price),
+      },
+      {
+        onSuccess: () => {
+          resetFields();
+          router.back();
+        },
+      }
     );
-
-    console.warn("product upDated");
-    resetFields();
   }
   function clearImg() {
     setImage(defaultUri);
@@ -79,13 +112,22 @@ const CreateProduct = () => {
       return;
     }
     //create database
-
-    console.warn("product created");
-
-    resetFields();
+    insertProduct(
+      { name, image, price: parseFloat(price) },
+      {
+        onSuccess: () => {
+          resetFields();
+          router.back();
+        },
+      }
+    );
   }
   function deleting() {
-    console.warn("deleted!!!");
+    deleteProduct(parseInt(typeof id === "string" ? id : id[0]), {
+      onSuccess: () => {
+        router.replace("/(admin)");
+      },
+    });
   }
   function confirmDelete() {
     Alert.alert("Confirm", "Are you sure you want to delete this product", [
@@ -99,6 +141,7 @@ const CreateProduct = () => {
       },
     ]);
   }
+  if (isLoding) return <ActivityIndicator />;
   return (
     <View style={styles.container}>
       <Stack.Screen

@@ -1,17 +1,30 @@
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import React from "react";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
-import products from "@assets/data/products";
 import { defaultUri } from "@/components/ProductItem";
 import Colors from "@/constants/Colors";
 import { FontAwesome } from "@expo/vector-icons";
+import { useProduct } from "@/app/api/products";
 
 const ProductDetail = () => {
   const { id } = useLocalSearchParams();
-  const product = products.find((product) => product.id.toString() === id);
-
-  if (!product) {
-    return <Text>NO PRODUCT FOUND</Text>;
+  const {
+    data: product,
+    isLoading,
+    error,
+  } = useProduct(parseInt(typeof id === "string" ? id : id[0]));
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+  if (error || !product) {
+    return <Text>Failed to fetch product</Text>;
   }
   return (
     <View style={styles.container}>
