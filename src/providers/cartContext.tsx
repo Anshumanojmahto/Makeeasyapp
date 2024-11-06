@@ -1,23 +1,64 @@
 import { CartItem, Tables } from "@/types";
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import { randomUUID } from "expo-crypto";
+import { useInsertOrder } from "@/app/api/orders";
+import { useRouter } from "expo-router";
+import { useInsertOrderItem } from "@/app/api/orderItem";
+import { useAuth } from "./AuthProvider";
 type Product = Tables<"products">;
 
 type CartType = {
   items: CartItem[];
   addItem: (product: Product, size: CartItem["size"]) => void;
   updateQuantity: (id: String, change: -1 | 1) => void;
-  totalPrice: number;
+  total: number;
+  checkOut: () => void;
 };
 const cartContext = createContext<CartType>({
   items: [],
   addItem: () => {},
   updateQuantity: () => {},
-  totalPrice: 0,
+  total: 0,
+  checkOut: () => {},
 });
 
 const CartContextProvider = ({ children }: PropsWithChildren) => {
+  const { session } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
+  const { mutate: InsertOrder } = useInsertOrder();
+  const { mutate: InsertOrderItem } = useInsertOrderItem();
+  const router = useRouter();
+  const clearCart = () => {
+    setItems([]);
+  };
+
+  function checkOut() {
+    const userId = session?.user.id;
+    if (!userId) {
+      throw new Error("User ID is missing");
+    }
+    InsertOrder(
+      { total, user_id: userId as string },
+      {
+        onSuccess: saveOrderItems,
+      }
+    );
+  }
+  const saveOrderItems = (order: any) => {
+    const item1 = items[0];
+    InsertOrderItem(
+      {
+        order_id: order.id,
+        product_id: item1.product_id,
+      },
+      {
+        onSuccess: () => {
+          clearCart();
+          router.push(`/(user)/orders`);
+        },
+      }
+    );
+  };
 
   function addItem(product: Product, size: CartItem["size"]) {
     //alredy exixt
@@ -48,13 +89,13 @@ const CartContextProvider = ({ children }: PropsWithChildren) => {
         .filter((item) => item.quantity > 0)
     );
   }
-  const totalPrice = items.reduce(
+  const total = items.reduce(
     (sum, item) => (sum += item.product.price * item.quantity),
     0
   );
   return (
     <cartContext.Provider
-      value={{ items, addItem, updateQuantity, totalPrice }}
+      value={{ items, addItem, updateQuantity, total, checkOut }}
     >
       {children}
     </cartContext.Provider>

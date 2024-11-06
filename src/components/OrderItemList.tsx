@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import React, { useState } from "react";
-import { Order } from "../types";
+import { Tables } from "../types";
 import { Link } from "expo-router";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
 type CartListItemProps = {
-  order: Order;
+  order: Tables<"orders">;
 };
 dayjs.extend(relativeTime);
 
