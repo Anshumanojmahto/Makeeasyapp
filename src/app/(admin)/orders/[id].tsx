@@ -12,15 +12,18 @@ import OrderItemList from "@/components/OrderItemList";
 import { Stack, useLocalSearchParams } from "expo-router";
 import Colors from "@/constants/Colors";
 import { OrderStatusList } from "@/types";
-import { useOrder } from "@/app/api/orders";
+import { useOrder, useUpdateOrder } from "@/app/api/orders";
 
 const OrderDetails = () => {
   const { id } = useLocalSearchParams();
-  const {
-    data: order,
-    isLoading,
-    error,
-  } = useOrder(parseInt(typeof id === "string" ? id : id[0]));
+  const orderId = parseInt(typeof id === "string" ? id : id[0]);
+  const { data: order, isLoading, error } = useOrder(orderId);
+  const { mutate: updateOrder } = useUpdateOrder();
+  const updatingStatus = (
+    status: "New" | "Cooking" | "Delivering" | "Delivered"
+  ) => {
+    updateOrder({ id: orderId, updatedData: { status } });
+  };
 
   if (isLoading) {
     return <ActivityIndicator />;
@@ -36,7 +39,7 @@ const OrderDetails = () => {
       <OrderItemList order={order} />
 
       <FlatList
-        data={order.order_items}
+        data={order.order_item}
         renderItem={({ item }) => <OrderItemDetails orderItem={item} />}
         contentContainerStyle={{
           gap: 5,
@@ -49,7 +52,7 @@ const OrderDetails = () => {
               {OrderStatusList.map((status) => (
                 <Pressable
                   key={status}
-                  onPress={() => console.warn("Update status")}
+                  onPress={() => updatingStatus(status)}
                   style={{
                     borderColor: Colors.light.tint,
                     borderWidth: 1,

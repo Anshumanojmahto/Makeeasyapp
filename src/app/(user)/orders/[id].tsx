@@ -10,9 +10,11 @@ import OrderItemDetails from "@/components/ordertItemDeatails";
 import OrderItemList from "@/components/OrderItemList";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useOrder } from "@/app/api/orders";
+import { useUpdateOrderSubscription } from "@/app/api/subsriptions";
 
 const OrderDetails = () => {
   const { id } = useLocalSearchParams();
+  useUpdateOrderSubscription(parseInt(typeof id === "string" ? id : id[0]));
   const {
     data: order,
     isLoading,
@@ -25,6 +27,7 @@ const OrderDetails = () => {
   if (error || !order) {
     return <Text>Failed to fetch product</Text>;
   }
+
   return (
     <View style={{ gap: 20, padding: 8 }}>
       <Stack.Screen
@@ -32,7 +35,7 @@ const OrderDetails = () => {
       />
       <OrderItemList order={order} />
       <FlatList
-        data={order.order_items}
+        data={order.order_item}
         renderItem={({ item }) => <OrderItemDetails orderItem={item} />}
         contentContainerStyle={{
           gap: 5,

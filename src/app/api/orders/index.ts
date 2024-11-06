@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/providers/AuthProvider";
-import { InsertTables } from "@/types";
+import { InsertTables, UpdateTables } from "@/types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useAdminOrders = ({ archived = false }) => {
@@ -11,7 +11,8 @@ export const useAdminOrders = ({ archived = false }) => {
       const { data, error } = await supabase
         .from("orders")
         .select("*")
-        .in("status", statuses);
+        .in("status", statuses)
+        .order("created_at", { ascending: false });
       if (error) {
         throw new Error(error.message);
       }
@@ -29,7 +30,8 @@ export const useMyOrdersList = () => {
       const { data, error } = await supabase
         .from("orders")
         .select("*")
-        .eq("user_id", id);
+        .eq("user_id", id)
+        .order("created_at", { ascending: false });
       if (error) {
         throw new Error(error.message);
       }
@@ -39,11 +41,11 @@ export const useMyOrdersList = () => {
 };
 export const useOrder = (id: number) => {
   return useQuery({
-    queryKey: ["order", id],
+    queryKey: ["orders", id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("*")
+        .select("*,order_item(*,products(*))")
         .eq("id", id)
         .single();
       if (error) {
@@ -75,6 +77,34 @@ export const useInsertOrder = () => {
     },
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+    onError(error) {
+      console.log(error);
+    },
+  });
+};
+export const useUpdateOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    async mutationFn({
+      id,
+      updatedData,
+    }: {
+      id: number;
+      updatedData: UpdateTables<"orders">;
+    }) {
+      const { error, data: updatedProduct } = await supabase
+        .from("orders")
+        .update(updatedData)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return updatedProduct;
+    },
+    async onSuccess(_, { id }) {
+      await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      await queryClient.invalidateQueries({ queryKey: ["orders", id] });
     },
     onError(error) {
       console.log(error);

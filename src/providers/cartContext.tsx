@@ -45,19 +45,19 @@ const CartContextProvider = ({ children }: PropsWithChildren) => {
     );
   }
   const saveOrderItems = (order: any) => {
-    const item1 = items[0];
-    InsertOrderItem(
-      {
-        order_id: order.id,
-        product_id: item1.product_id,
+    const orderItems = items.map((cartItem) => ({
+      order_id: order.id,
+      product_id: cartItem.product_id,
+      quantity: cartItem.quantity,
+      size: cartItem.size,
+    }));
+
+    InsertOrderItem(orderItems, {
+      onSuccess: () => {
+        clearCart();
+        router.push(`/(user)/orders`);
       },
-      {
-        onSuccess: () => {
-          clearCart();
-          router.push(`/(user)/orders`);
-        },
-      }
-    );
+    });
   };
 
   function addItem(product: Product, size: CartItem["size"]) {

@@ -1,26 +1,15 @@
 import { View, Text, StyleSheet, Image } from "react-native";
 import React, { useState } from "react";
 
-import { OrderItem } from "../types";
+import { Tables } from "../types";
 import Colors from "@/constants/Colors";
 import { defaultUri } from "./ProductItem";
 
 type CartListItemProps = {
-  orderItem: OrderItem;
+  orderItem: { products: Tables<"products"> | null } & Tables<"order_item">;
 };
 
 const OrderItemDetails = ({ orderItem }: CartListItemProps) => {
-  //   const [time, settime] = useState(0);
-
-  //   function calculateTime() {
-  //     const currentTime = Date.now();
-  //     const timeEle = currentTime - +order.created_at;
-  //     const timeEles = timeEle / 1000;
-  //     const timeElem = timeEles / 60;
-  //     const timeEleh = timeElem / 60;
-  //     settime(timeEleh);
-  //   }
-
   return (
     // <Pressable style={styles.container}>
     //   <View style={styles.container1}>
@@ -34,15 +23,15 @@ const OrderItemDetails = ({ orderItem }: CartListItemProps) => {
 
     <View style={styles.container}>
       <Image
-        source={{ uri: orderItem.products.image || defaultUri }}
+        source={{ uri: orderItem.products?.image || defaultUri }}
         style={styles.image}
         resizeMode="contain"
       />
       <View style={{ flex: 1 }}>
-        <Text style={styles.title}>{orderItem.products.name}</Text>
+        <Text style={styles.title}>{orderItem.products?.name}</Text>
         <View style={styles.subtitleContainer}>
           <Text style={styles.price}>
-            ₹{orderItem.products.price.toFixed(2)}
+            ₹{orderItem.products?.price.toFixed(2)}
           </Text>
           <Text>Size: {orderItem.size}</Text>
         </View>
