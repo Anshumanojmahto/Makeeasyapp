@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, Image, Pressable } from "react-native";
 import Colors from "@/constants/Colors";
 import { Tables } from "../types";
 import { Link } from "expo-router";
+import RemoteImage from "./RemoteImage";
 
 export type ProductItemProp = {
   product: Tables<"products">;
@@ -13,8 +14,9 @@ const ProductItem = ({ product }: ProductItemProp) => {
   return (
     <Link href={`/menu/${product.id}`} asChild>
       <Pressable style={styles.container}>
-        <Image
-          source={{ uri: product.image || defaultUri }}
+        <RemoteImage
+          path={product.image}
+          fallback={defaultUri}
           style={styles.image}
           resizeMode={"contain"}
         />

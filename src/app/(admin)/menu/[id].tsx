@@ -12,6 +12,7 @@ import { defaultUri } from "@/components/ProductItem";
 import Colors from "@/constants/Colors";
 import { FontAwesome } from "@expo/vector-icons";
 import { useProduct } from "@/app/api/products";
+import RemoteImage from "@/components/RemoteImage";
 
 const ProductDetail = () => {
   const { id } = useLocalSearchParams();
@@ -48,8 +49,9 @@ const ProductDetail = () => {
           ),
         }}
       />
-      <Image
-        source={{ uri: product.image || defaultUri }}
+      <RemoteImage
+        path={product.image}
+        fallback={defaultUri}
         style={styles.image}
       />
       <Text style={styles.subTag}>{product.name}</Text>

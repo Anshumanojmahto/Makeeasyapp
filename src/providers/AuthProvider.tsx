@@ -8,10 +8,20 @@ import {
   useState,
 } from "react";
 
+type ProfileType = {
+  avatar_url: string | null;
+  full_name: string | null;
+  group: string;
+  id: string;
+  updated_at: string | null;
+  username: string | null;
+  website: string | null;
+} | null;
+
 type AuthType = {
   session: Session | null;
   loding: boolean;
-  profile: any;
+  profile: ProfileType;
   isAdmin: boolean;
 };
 const AuthContext = createContext<AuthType>({
@@ -23,14 +33,16 @@ const AuthContext = createContext<AuthType>({
 
 function AuthCOntextProvider({ children }: PropsWithChildren) {
   const [session, setsession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<ProfileType>(null);
   const [loding, setloding] = useState(true);
   useEffect(() => {
-    async function getSession() {
+    const fetchSession = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
       setsession(session);
+
       if (session) {
         // fetch profile
         const { data } = await supabase
@@ -40,9 +52,11 @@ function AuthCOntextProvider({ children }: PropsWithChildren) {
           .single();
         setProfile(data || null);
       }
+
       setloding(false);
-    }
-    getSession();
+    };
+
+    fetchSession();
     supabase.auth.onAuthStateChange((_event, session) => {
       setsession(session);
     });

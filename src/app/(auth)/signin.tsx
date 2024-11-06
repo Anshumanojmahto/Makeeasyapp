@@ -1,7 +1,7 @@
 import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
 import React, { useState } from "react";
 import Button from "@/components/Button";
-import { Link, Stack } from "expo-router";
+import { Link, Stack, useRouter } from "expo-router";
 import Colors from "@/constants/Colors";
 import { supabase } from "@/lib/supabase";
 
@@ -10,7 +10,7 @@ const SignIN = () => {
   const [password, setpassword] = useState<string | "">("");
   const [error, seterror] = useState<string | null>("");
   const [loding, setLoding] = useState(false);
-
+  const router = useRouter();
   function resetFields() {
     setemail("");
     setpassword("");
@@ -42,6 +42,7 @@ const SignIN = () => {
     if (error) Alert.alert(error.message);
     setLoding(false);
     resetFields();
+    router.push("/");
   }
   return (
     <View style={styles.container}>

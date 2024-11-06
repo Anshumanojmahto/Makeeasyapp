@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Tables } from "../types";
 import Colors from "@/constants/Colors";
 import { defaultUri } from "./ProductItem";
+import RemoteImage from "./RemoteImage";
 
 type CartListItemProps = {
   orderItem: { products: Tables<"products"> | null } & Tables<"order_item">;
@@ -22,8 +23,9 @@ const OrderItemDetails = ({ orderItem }: CartListItemProps) => {
     // </Pressable>
 
     <View style={styles.container}>
-      <Image
-        source={{ uri: orderItem.products?.image || defaultUri }}
+      <RemoteImage
+        path={orderItem.products?.image}
+        fallback={defaultUri}
         style={styles.image}
         resizeMode="contain"
       />

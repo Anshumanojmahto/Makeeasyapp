@@ -19,11 +19,16 @@ import {
   useProduct,
 } from "@/app/api/products";
 import { useUpdateProduct } from "@/app/api/products";
+import { randomUUID } from "expo-crypto";
+import { supabase } from "@/lib/supabase";
+import { decode } from "base64-arraybuffer";
+import * as FileSystem from "expo-file-system";
 
 const CreateProduct = () => {
   const { id } = useLocalSearchParams();
   const parsedId = id ? parseInt(Array.isArray(id) ? id[0] : id) : null;
   const isUpdating = !!parsedId;
+  const [uploading, setuploading] = useState(false);
 
   const [name, setName] = useState<string | "">("");
   const [price, setPrice] = useState<string | "">("");
@@ -83,23 +88,26 @@ const CreateProduct = () => {
       setImage(result.assets[0].uri);
     }
   };
-  function onUpdate() {
+  async function onUpdate() {
     if (!validate()) {
       return;
     }
+    setuploading(true);
 
+    const imagePath = await uploadImage();
     //update on database
     updateProduct(
       {
         id: parseInt(typeof id === "string" ? id : id[0]),
         name,
-        image,
+        image: imagePath,
         price: parseFloat(price),
       },
       {
         onSuccess: () => {
           resetFields();
           router.back();
+          setuploading(false);
         },
       }
     );
@@ -107,21 +115,44 @@ const CreateProduct = () => {
   function clearImg() {
     setImage(defaultUri);
   }
-  function onCreate() {
+  async function onCreate() {
     if (!validate()) {
       return;
     }
+    setuploading(true);
+
+    const imagePath = await uploadImage();
+
     //create database
     insertProduct(
-      { name, image, price: parseFloat(price) },
+      { name, image: imagePath, price: parseFloat(price) },
       {
         onSuccess: () => {
           resetFields();
           router.back();
+          setuploading(false);
         },
       }
     );
   }
+  const uploadImage = async () => {
+    if (!image?.startsWith("file://")) {
+      return;
+    }
+
+    const base64 = await FileSystem.readAsStringAsync(image, {
+      encoding: "base64",
+    });
+    const filePath = `${randomUUID()}.png`;
+    const contentType = "image/png";
+    const { data, error } = await supabase.storage
+      .from("product-images")
+      .upload(filePath, decode(base64), { contentType });
+
+    if (data) {
+      return data.path;
+    }
+  };
   function deleting() {
     deleteProduct(parseInt(typeof id === "string" ? id : id[0]), {
       onSuccess: () => {
@@ -190,6 +221,7 @@ const CreateProduct = () => {
       />
       <Text style={{ color: "red" }}>{error}</Text>
       <Button
+        disabled={uploading ? true : false}
         text={isUpdating ? "Update" : "Create"}
         onPress={isUpdating ? onUpdate : onCreate}
       />
