@@ -19,7 +19,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.Makeeasy"
     },
     "web": {
       "bundler": "metro",
@@ -39,6 +43,11 @@
     "experiments": {
       "typedRoutes": true,
       "tsconfiPaths": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bf5244b7-56cf-43b3-b467-e95e6b6d6a38"
+      }
     }
   }
 }
