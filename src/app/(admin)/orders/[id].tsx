@@ -13,16 +13,20 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import Colors from "@/constants/Colors";
 import { OrderStatusList } from "@/types";
 import { useOrder, useUpdateOrder } from "@/app/api/orders";
+import { notifyUserAboutOrderUpdate } from "@/lib/notifications";
 
 const OrderDetails = () => {
   const { id } = useLocalSearchParams();
   const orderId = parseInt(typeof id === "string" ? id : id[0]);
   const { data: order, isLoading, error } = useOrder(orderId);
   const { mutate: updateOrder } = useUpdateOrder();
-  const updatingStatus = (
+  const updatingStatus = async (
     status: "New" | "Cooking" | "Delivering" | "Delivered"
   ) => {
     updateOrder({ id: orderId, updatedData: { status } });
+    if (order) {
+      await notifyUserAboutOrderUpdate({ ...order, status });
+    }
   };
 
   if (isLoading) {

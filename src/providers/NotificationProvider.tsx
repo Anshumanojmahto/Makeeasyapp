@@ -1,23 +1,44 @@
-import { registerForPushNotificationsAsync } from "@/lib/notifications";
-import { ExpoPushToken } from "expo-notifications";
 import { PropsWithChildren, useEffect, useRef, useState } from "react";
+import { registerForPushNotificationsAsync } from "@/lib/notifications";
 import * as Notifications from "expo-notifications";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "./AuthProvider";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 const NotificationProvider = ({ children }: PropsWithChildren) => {
-  const [expoPushToken, setExpoPushToken] = useState<
-    ExpoPushToken | undefined
-  >();
+  const [expoPushToken, setExpoPushToken] = useState<String | undefined>();
+
+  const { profile } = useAuth();
+
   const [notification, setNotification] =
     useState<Notifications.Notification>();
   const notificationListener = useRef<Notifications.Subscription>();
   const responseListener = useRef<Notifications.Subscription>();
 
+  const savePushToken = async (newToken: string | undefined) => {
+    setExpoPushToken(newToken);
+    if (!newToken) {
+      return;
+    }
+    if (!profile) {
+      return;
+    }
+    // update the token in the database
+    await supabase
+      .from("profiles")
+      .update({ expo_push_token: newToken })
+      .eq("id", profile.id);
+  };
+
   useEffect(() => {
-    registerForPushNotificationsAsync().then((token) => {
-      if (token) {
-        setExpoPushToken(token as unknown as ExpoPushToken); // Cast through unknown
-      }
-    });
+    registerForPushNotificationsAsync().then((token) => savePushToken(token));
 
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
@@ -41,8 +62,8 @@ const NotificationProvider = ({ children }: PropsWithChildren) => {
     };
   }, []);
 
-  console.log("notif : ", notification);
-  console.log("push token : ", expoPushToken);
+  console.log("Push token: ", expoPushToken);
+  console.log("Notif: ", notification);
 
   return <>{children}</>;
 };

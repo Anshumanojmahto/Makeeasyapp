@@ -119,7 +119,7 @@ const CartContextProvider = ({ children }: PropsWithChildren) => {
       description: "Credits towards consultation",
       image: "https://i.imgur.com/3g7nmJC.png",
       currency: "INR",
-      key: "rzp_test_NQQef7bb0NQnY4", // Replace with your actual Razorpay API key
+      key: "rzp_test_h2vrFm3cjRZh3G", // Replace with your actual Razorpay API key
       amount: totalamount, // Convert total to the smallest currency unit
       name: "Makeeasy",
       order_id: orderId, // Pass the unique order ID
@@ -131,25 +131,22 @@ const CartContextProvider = ({ children }: PropsWithChildren) => {
       theme: { color: "#F37254" },
     };
 
-    // Open Razorpay with error handling
     RazorpayCheckout.open(options)
       .then((data) => {
-        // Handle successful payment with data.razorpay_payment_id
-        alert(`Success: ${data.razorpay_payment_id}`);
+        // handle success
+
         InsertOrder(
           { total, user_id: userId as string },
           {
             onSuccess: saveOrderItems,
           }
         );
+        alert(`Success: ${data.razorpay_payment_id}`);
       })
       .catch((error) => {
-        console.log(error);
-
-        return;
+        // handle failure
+        alert(`Error: ${error.code} | ${error.description}`);
       });
-
-    // Insert order in the backend database
   }
   return (
     <cartContext.Provider
