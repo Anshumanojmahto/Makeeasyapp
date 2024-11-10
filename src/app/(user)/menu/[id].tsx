@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Pressable,
   ActivityIndicator,
+  useColorScheme,
 } from "react-native";
 import React, { useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
@@ -21,6 +22,8 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState<PizzaSize>("F");
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const colorScheme = useColorScheme();
+
   const {
     data: product,
     isLoading,
@@ -43,7 +46,20 @@ const ProductDetail = () => {
   return (
     <View style={styles.container}>
       <Stack.Screen
-        options={{ title: product.name, headerTitleAlign: "center" }}
+        options={{
+          headerTitle: () => (
+            <Text
+              style={[
+                styles.headerTitle,
+                colorScheme === "dark" && styles.darkHeaderTitle,
+              ]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {product.name}
+            </Text>
+          ),
+        }}
       />
       <RemoteImage
         path={product.image}
@@ -86,8 +102,8 @@ const ProductDetail = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-    backgroundColor: "white",
     flex: 1,
+    backgroundColor: "#fffbf0",
   },
   image: {
     width: "100%",
@@ -107,6 +123,17 @@ const styles = StyleSheet.create({
   sizes: {
     flexDirection: "row",
     justifyContent: "space-around",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    overflow: "hidden",
+    width: "80%",
+    textAlign: "left",
+    left: -20,
+  },
+  darkHeaderTitle: {
+    color: "white",
   },
   size: {
     width: 50,

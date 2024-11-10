@@ -4,6 +4,7 @@ import {
   View,
   ActivityIndicator,
   Text,
+  useColorScheme,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -13,6 +14,7 @@ const Profile = () => {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [email, setEmail] = useState<string>("");
   const router = useRouter();
+  const colorScheme = useColorScheme();
   useEffect(() => {
     (async () => {
       const {
@@ -38,7 +40,14 @@ const Profile = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 20 }}>Email : {email}</Text>
+      <Text
+        style={{
+          fontSize: 20,
+          color: colorScheme === "dark" ? "white" : "black",
+        }}
+      >
+        Email : {email}
+      </Text>
       {isSigningOut ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
