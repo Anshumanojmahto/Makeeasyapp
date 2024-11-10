@@ -64,21 +64,27 @@ const ProductDetail = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-    backgroundColor: "white",
     flex: 1,
   },
   image: {
     width: "100%",
     aspectRatio: 1,
     alignSelf: "center",
+    borderRadius: 10,
   },
   subTag: {
     marginVertical: 4,
     fontWeight: "bold",
+    textAlign: "center",
+    paddingVertical: 10,
+    fontSize: 25,
+    color: "#dd00aa",
   },
   price: {
     fontSize: 18,
     fontWeight: "bold",
+    textAlign: "center",
+    color: Colors.light.tint,
   },
   sizes: {
     flexDirection: "row",

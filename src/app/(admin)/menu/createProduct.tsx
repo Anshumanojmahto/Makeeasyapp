@@ -43,7 +43,7 @@ const CreateProduct = () => {
     useEffect(() => {
       if (updatingProduct) {
         setName(updatingProduct.name ?? "");
-        setImage(updatingProduct.image ?? defaultUri);
+        setImage(defaultUri);
         setPrice(updatingProduct.price?.toString() ?? "");
       }
     }, [updatingProduct]);
