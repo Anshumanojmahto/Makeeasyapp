@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     aspectRatio: 1,
+    borderRadius: 15,
   },
   name: {
     fontSize: 20,
