@@ -96,7 +96,11 @@ const CartContextProvider = ({ children }: PropsWithChildren) => {
     );
   }
   const total = items.reduce(
-    (sum, item) => (sum += item.product.price * item.quantity),
+    (sum, item) =>
+      (sum +=
+        item.size == "F"
+          ? item.product.price * item.quantity
+          : (item.product.price / 2 + 20) * item.quantity),
     0
   );
   function checkOut() {

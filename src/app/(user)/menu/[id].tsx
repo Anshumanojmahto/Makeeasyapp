@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   Pressable,
   ActivityIndicator,
@@ -15,11 +14,11 @@ import { PizzaSize } from "@/types";
 import { useProduct } from "@/app/api/products";
 import RemoteImage from "@/components/RemoteImage";
 
-const sizes: PizzaSize[] = ["S", "M", "L", "XL"];
+const sizes: PizzaSize[] = ["H", "F"];
 
 const ProductDetail = () => {
   const { addItem } = useCart();
-  const [selectedSize, setSelectedSize] = useState<PizzaSize>("M");
+  const [selectedSize, setSelectedSize] = useState<PizzaSize>("F");
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const {
@@ -76,7 +75,9 @@ const ProductDetail = () => {
         ))}
       </View>
 
-      <Text style={styles.price}>Price : {product.price}</Text>
+      <Text style={styles.price}>
+        Price : {selectedSize == "F" ? product.price : product.price / 2 + 20}
+      </Text>
       <Button onPress={addToCart} text="Add to cart" />
     </View>
   );
@@ -92,6 +93,7 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 1,
     alignSelf: "center",
+    borderRadius: 15,
   },
   subTag: {
     marginVertical: 10,
