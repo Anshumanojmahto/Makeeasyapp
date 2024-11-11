@@ -24,7 +24,7 @@ export const useMyOrdersList = () => {
   const { session } = useAuth();
   const id = session?.user.id;
   return useQuery({
-    queryKey: ["orders", { userId: id }],
+    queryKey: ["orders", id],
     queryFn: async () => {
       if (!id) return null;
       const { data, error } = await supabase

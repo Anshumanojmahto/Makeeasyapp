@@ -12,16 +12,6 @@ type CartListItemProps = {
 
 const OrderItemDetails = ({ orderItem }: CartListItemProps) => {
   return (
-    // <Pressable style={styles.container}>
-    //   <View style={styles.container1}>
-    //     <Text style={styles.orderTag}>Order #{order.total}</Text>
-    //     <Text style={styles.orderTime}>14 hours ago</Text>
-    //   </View>
-    //   <View>
-    //     <Text style={styles.orderStatus}>status</Text>
-    //   </View>
-    // </Pressable>
-
     <View style={styles.container}>
       <RemoteImage
         path={orderItem.products?.image}
@@ -33,7 +23,10 @@ const OrderItemDetails = ({ orderItem }: CartListItemProps) => {
         <Text style={styles.title}>{orderItem.products?.name}</Text>
         <View style={styles.subtitleContainer}>
           <Text style={styles.price}>
-            ₹{orderItem.products?.price.toFixed(2)}
+            ₹
+            {orderItem.size == "F"
+              ? (orderItem.products?.price ?? 0).toFixed(2)
+              : ((orderItem.products?.price ?? 0) / 2 + 20).toFixed(2)}
           </Text>
           <Text>Size: {orderItem.size}</Text>
         </View>

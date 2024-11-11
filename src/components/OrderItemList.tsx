@@ -21,15 +21,7 @@ const OrderItemList = ({ order }: CartListItemProps) => {
   // }
 
   return (
-    // <Pressable style={styles.container}>
-    //   <View style={styles.container1}>
-    //     <Text style={styles.orderTag}>Order #{order.total}</Text>
-    //     <Text style={styles.orderTime}>14 hours ago</Text>
-    //   </View>
-    //   <View>
-    //     <Text style={styles.orderStatus}>status</Text>
-    //   </View>
-    // </Pressable>
+    //
     <Link href={`/orders/${order.id}`} asChild>
       <Pressable style={styles.container}>
         <View style={styles.container1}>

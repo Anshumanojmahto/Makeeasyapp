@@ -3,7 +3,8 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const useInsertOrderSubscription = () => {
-  const qurryClient = useQueryClient();
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     const orders = supabase
       .channel("custom-insert-channel")
@@ -11,17 +12,20 @@ export const useInsertOrderSubscription = () => {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "orders" },
         (payload) => {
-          qurryClient.invalidateQueries({ queryKey: ["orders"] });
+          queryClient.invalidateQueries({ queryKey: ["orders"] });
         }
       )
       .subscribe();
+
     return () => {
       orders.unsubscribe();
     };
   }, []);
 };
-export const useUpdateOrderSubscription = (id: number) => {
-  const qurryClient = useQueryClient();
+
+export const useUpdateOrderSubscription = (id: number, user_id: string) => {
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     const orders = supabase
       .channel("custom-filter-channel")
@@ -34,7 +38,8 @@ export const useUpdateOrderSubscription = (id: number) => {
           filter: `id=eq.${id}`,
         },
         (payload) => {
-          qurryClient.invalidateQueries({ queryKey: ["orders", id] });
+          queryClient.invalidateQueries({ queryKey: ["orders", id] });
+          queryClient.invalidateQueries({ queryKey: ["orders", user_id] });
         }
       )
       .subscribe();
@@ -42,5 +47,5 @@ export const useUpdateOrderSubscription = (id: number) => {
     return () => {
       orders.unsubscribe();
     };
-  }, []);
+  }, [id, user_id]);
 };

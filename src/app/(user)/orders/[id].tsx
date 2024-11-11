@@ -11,10 +11,16 @@ import OrderItemList from "@/components/OrderItemList";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useOrder } from "@/app/api/orders";
 import { useUpdateOrderSubscription } from "@/app/api/subsriptions";
+import { useAuth } from "@/providers/AuthProvider";
 
 const OrderDetails = () => {
   const { id } = useLocalSearchParams();
-  useUpdateOrderSubscription(parseInt(typeof id === "string" ? id : id[0]));
+  const { session } = useAuth();
+  const user_id = session?.user.id || "";
+  useUpdateOrderSubscription(
+    parseInt(typeof id === "string" ? id : id[0]),
+    user_id
+  );
   const {
     data: order,
     isLoading,
