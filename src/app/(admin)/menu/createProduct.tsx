@@ -42,11 +42,13 @@ const CreateProduct = () => {
     const { data: updatingProduct, isLoading } = useProduct(parsedId || 0);
     useEffect(() => {
       if (updatingProduct) {
-        setName(updatingProduct.name ?? "");
-        setImage(defaultUri);
-        setPrice(updatingProduct.price?.toString() ?? "");
+        if (name !== updatingProduct.name) setName(updatingProduct.name ?? "");
+        if (price !== updatingProduct.price?.toString())
+          setPrice(updatingProduct.price?.toString() ?? "");
+        if (image !== defaultUri) setImage(defaultUri);
       }
     }, [updatingProduct]);
+
     isLoding = isLoading;
   }
 

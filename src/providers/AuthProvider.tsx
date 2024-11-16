@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { Tables } from "@/types";
 import { Session } from "@supabase/supabase-js";
 import {
   createContext,
@@ -8,25 +9,18 @@ import {
   useState,
 } from "react";
 
-type ProfileType = {
-  avatar_url: string | null;
-  full_name: string | null;
-  group: string;
-  id: string;
-  updated_at: string | null;
-  username: string | null;
-  website: string | null;
-} | null;
+type ProfileType = Tables<"profiles"> | null;
 
 type AuthType = {
   session: Session | null;
-  loding: boolean;
+  loding: boolean; // Keeping the original typo here
   profile: ProfileType;
   isAdmin: boolean;
 };
+
 const AuthContext = createContext<AuthType>({
   session: null,
-  loding: true,
+  loding: true, // Keeping the original typo here
   profile: null,
   isAdmin: false,
 });
@@ -34,7 +28,8 @@ const AuthContext = createContext<AuthType>({
 function AuthCOntextProvider({ children }: PropsWithChildren) {
   const [session, setsession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<ProfileType>(null);
-  const [loding, setloding] = useState(true);
+  const [loding, setloding] = useState(true); // Keeping the original typo here
+
   useEffect(() => {
     const fetchSession = async () => {
       const {
@@ -44,7 +39,7 @@ function AuthCOntextProvider({ children }: PropsWithChildren) {
       setsession(session);
 
       if (session) {
-        // fetch profile
+        // Fetch profile
         const { data } = await supabase
           .from("profiles")
           .select("*")
@@ -53,22 +48,30 @@ function AuthCOntextProvider({ children }: PropsWithChildren) {
         setProfile(data || null);
       }
 
-      setloding(false);
+      setloding(false); // Keeping the original typo here
     };
 
     fetchSession();
     supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", session);
       setsession(session);
     });
-  }, []);
+  }, []); // Empty array ensures fetchSession only runs once
+
   return (
     <AuthContext.Provider
-      value={{ session, loding, profile, isAdmin: profile?.group === "ADMIN" }}
+      value={{
+        session,
+        loding,
+        profile,
+        isAdmin: profile?.group === "ADMIN", // Safe access to profile
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 }
+
 export default AuthCOntextProvider;
 
 export const useAuth = () => useContext(AuthContext);

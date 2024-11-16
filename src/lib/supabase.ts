@@ -4,14 +4,28 @@ import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/database.types";
 
 const ExpoSecureStoreAdapter = {
-  getItem: (key: string) => {
-    return SecureStore.getItemAsync(key);
+  getItem: async (key: string) => {
+    try {
+      return await SecureStore.getItemAsync(key);
+    } catch (error) {
+      console.error(`Error retrieving ${key} from SecureStore:`, error);
+      await SecureStore.deleteItemAsync(key); // Clear the corrupted key
+      return null;
+    }
   },
-  setItem: (key: string, value: string) => {
-    SecureStore.setItemAsync(key, value);
+  setItem: async (key: string, value: string) => {
+    try {
+      await SecureStore.setItemAsync(key, value);
+    } catch (error) {
+      console.error(`Error setting ${key} in SecureStore:`, error);
+    }
   },
-  removeItem: (key: string) => {
-    SecureStore.deleteItemAsync(key);
+  removeItem: async (key: string) => {
+    try {
+      await SecureStore.deleteItemAsync(key);
+    } catch (error) {
+      console.error(`Error deleting ${key} from SecureStore:`, error);
+    }
   },
 };
 

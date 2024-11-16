@@ -1,5 +1,4 @@
 import { StyleSheet, FlatList, Text, ActivityIndicator } from "react-native";
-import products from "@assets/data/products";
 import ProductItem from "@components/ProductItem";
 import { useProductDetails } from "@/app/api/products";
 

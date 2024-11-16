@@ -3,6 +3,7 @@ import { registerForPushNotificationsAsync } from "@/lib/notifications";
 import * as Notifications from "expo-notifications";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./AuthProvider";
+import { Tables } from "@/types";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -13,8 +14,7 @@ Notifications.setNotificationHandler({
 });
 
 const NotificationProvider = ({ children }: PropsWithChildren) => {
-  const [expoPushToken, setExpoPushToken] = useState<String | undefined>();
-
+  const [expoPushToken, setExpoPushToken] = useState<string | undefined>();
   const { profile } = useAuth();
 
   const [notification, setNotification] =
@@ -22,23 +22,39 @@ const NotificationProvider = ({ children }: PropsWithChildren) => {
   const notificationListener = useRef<Notifications.Subscription>();
   const responseListener = useRef<Notifications.Subscription>();
 
-  const savePushToken = async (newToken: string | undefined) => {
-    setExpoPushToken(newToken);
-    if (!newToken) {
-      return;
+  useEffect(() => {
+    console.log("repeating in Notification provider");
+    if (expoPushToken && profile && profile.expo_push_token !== expoPushToken) {
+      savePushToken(expoPushToken);
     }
-    if (!profile) {
-      return;
+  }, [profile, expoPushToken]);
+
+  const savePushToken = async (newToken: string) => {
+    console.log(profile?.expo_push_token);
+
+    if (!newToken || !profile || profile.expo_push_token === newToken) {
+      return; // Exit early if nothing to update
     }
-    // update the token in the database
-    await supabase
-      .from("profiles")
-      .update({ expo_push_token: newToken })
-      .eq("id", profile.id);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .update({ expo_push_token: newToken })
+        .eq("id", profile.id);
+
+      if (error) {
+        console.error("Error updating expo_push_token:", error.message);
+      }
+    } catch (err) {
+      console.error("Unexpected error during update:", err);
+    }
   };
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then((token) => savePushToken(token));
+    console.log("repeating in Notification provider 2");
+
+    registerForPushNotificationsAsync().then((token) => {
+      setExpoPushToken(token);
+    });
 
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
@@ -47,9 +63,10 @@ const NotificationProvider = ({ children }: PropsWithChildren) => {
 
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log(response);
+        // handle response if needed
       });
 
+    // Cleanup listeners on unmount
     return () => {
       if (notificationListener.current) {
         Notifications.removeNotificationSubscription(
@@ -60,10 +77,7 @@ const NotificationProvider = ({ children }: PropsWithChildren) => {
         Notifications.removeNotificationSubscription(responseListener.current);
       }
     };
-  }, []);
-
-  console.log("Push token: ", expoPushToken);
-  console.log("Notif: ", notification);
+  }, []); // Empty array ensures this effect runs only once
 
   return <>{children}</>;
 };

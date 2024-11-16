@@ -12,25 +12,32 @@ import { useRouter } from "expo-router";
 
 const Profile = () => {
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const [email, setEmail] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
   const router = useRouter();
   const colorScheme = useColorScheme();
+
   useEffect(() => {
-    (async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user?.email) {
-        setEmail(user?.email);
+    // Fetch user data only on component mount
+    const fetchUser = async () => {
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        console.log("error in profile", error);
+
+        if (data?.user?.phone) {
+          setPhone(data.user.phone);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
       }
-    })();
-  }, []);
+    };
+    fetchUser();
+  }, []); // Empty dependency array ensures this only runs once
 
   const handleSignOut = async () => {
     try {
       setIsSigningOut(true);
       await supabase.auth.signOut();
-      router.push("/(auth)/signin"); // Replace with the correct route name
+      router.replace("/(auth)/signin"); // Ensure this route exists
     } catch (error) {
       console.error("Error signing out:", error);
     } finally {
@@ -46,7 +53,7 @@ const Profile = () => {
           color: colorScheme === "dark" ? "white" : "black",
         }}
       >
-        Email : {email}
+        Phone: {phone}
       </Text>
       {isSigningOut ? (
         <ActivityIndicator size="large" color="#0000ff" />
